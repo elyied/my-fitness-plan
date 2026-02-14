@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4-Week Fat Loss Transformation Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Confetti for celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #fdfaf6; color: #1f2937; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
+        .active-tab { border-bottom: 2px solid #ea580c; color: #ea580c; font-weight: 600; }
+        .inactive-tab { color: #6b7280; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        
+        /* Modal Styles */
+        .modal { transition: opacity 0.25s ease; }
+        .modal-active { overflow-y: hidden; }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #ea580c;
+            width: 24px;
+            height: 24px;
+            -webkit-animation: spin 1s linear infinite; /* Safari */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .ai-response h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; color: #ea580c; }
+        .ai-response ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .ai-response p { margin-bottom: 0.75rem; }
+
+        /* Custom Checkbox Animation */
+        .checkbox-wrapper input:checked + div {
+            background-color: #ea580c;
+            border-color: #ea580c;
+        }
+        .checkbox-wrapper input:checked + div svg {
+            display: block;
+        }
+        .strikethrough-checked:checked ~ span {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Header / User Profile -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Transformation Blueprint</h1>
+                <p class="text-sm text-gray-500">Customized for 20M • 67kg • 167cm • Fat Loss Goal</p>
+            </div>
+            <div class="flex items-center gap-6 text-sm">
+                <div class="text-center">
+                    <span class="block font-bold text-orange-600 text-lg">2,000</span>
+                    <span class="text-gray-500">Daily Calories</span>
+                </div>
+                <div class="text-center">
+                    <span class="block font-bold text-emerald-600 text-lg">140g</span>
+                    <span class="text-gray-500">Protein Goal</span>
+                </div>
+                <div class="text-center">
+                    <span class="block font-bold text-blue-600 text-lg">4 Weeks</span>
+                    <span class="text-gray-500">Duration</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+
+        <!-- Introduction -->
+        <section class="bg-white rounded-xl card-shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Program Overview</h2>
+            <p class="text-gray-600 leading-relaxed">
+                Welcome to your comprehensive Fat Loss Dashboard. Based on your metrics, we've designed a <strong>~500 calorie deficit</strong> plan paired with a <strong>high-intensity home workout regimen</strong>. 
+                Your maintenance calories are approximately 2,500/day. We are targeting <strong>2,000 calories/day</strong> to lose fat while maintaining muscle mass through high protein intake (Egg/Vegetarian focus).
+                Use the tabs below to toggle between your Nutrition Plan and Workout Schedule.
+            </p>
+        </section>
+
+        <!-- Main Navigation Tabs -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="nav-nutrition" onclick="switchMainTab('nutrition')" class="flex-1 py-4 text-center text-lg font-medium active-tab transition-colors duration-200">
+                🥗 Nutrition & Macros
+            </button>
+            <button id="nav-workout" onclick="switchMainTab('workout')" class="flex-1 py-4 text-center text-lg font-medium inactive-tab transition-colors duration-200">
+                💪 Workout Schedule
+            </button>
+            <button id="nav-tracker" onclick="switchMainTab('tracker')" class="flex-1 py-4 text-center text-lg font-medium inactive-tab transition-colors duration-200">
+                ✅ Progress Tracker
+            </button>
+        </div>
+
+        <!-- NUTRITION SECTION -->
+        <div id="section-nutrition" class="space-y-6 animate-fade-in">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Macro Chart -->
+                <div class="bg-white rounded-xl card-shadow p-6 flex flex-col items-center justify-center">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 self-start">Daily Macro Targets</h3>
+                    <div class="chart-container">
+                        <canvas id="macroChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-sm text-center text-gray-500">
+                        <p>High protein ensures muscle retention while in a deficit.</p>
+                    </div>
+                </div>
+
+                <!-- Diet Principles -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Dietary Guidelines</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-emerald-500 mr-2">✓</span>
+                            <span class="text-gray-600"><strong>Protein Priority:</strong> Eggs are your superfood here. Aim for yolks in moderation, whites in abundance.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-emerald-500 mr-2">✓</span>
+                            <span class="text-gray-600"><strong>Hydration:</strong> Drink 3-4 liters of water daily. It boosts metabolism and reduces hunger.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-emerald-500 mr-2">✓</span>
+                            <span class="text-gray-600"><strong>Cooking Oil:</strong> Limit to 2-3 tsp per day (Olive oil, Ghee, or Coconut oil).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-emerald-500 mr-2">✓</span>
+                            <span class="text-gray-600"><strong>Meal Timing:</strong> Try to eat your last meal 3 hours before bed.</span>
+                        </li>
+                    </ul>
+                    <div class="mt-6 bg-orange-50 p-4 rounded-lg border border-orange-100">
+                        <h4 class="font-bold text-orange-800 text-sm mb-1">💡 Coach's Tip</h4>
+                        <p class="text-sm text-orange-700">If you feel hungry between meals, drink a glass of water first. Often, thirst is masked as hunger.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Meal Plan Options -->
+            <div class="bg-white rounded-xl card-shadow overflow-hidden">
+                <div class="p-6 bg-gray-50 border-b border-gray-100 flex justify-between items-center flex-wrap gap-2">
+                    <h3 class="text-lg font-semibold text-gray-800">Daily Meal Plan</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="renderMealPlan('Option A')" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 focus:ring-2 focus:ring-orange-500">Option A</button>
+                        <button onclick="renderMealPlan('Option B')" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 focus:ring-2 focus:ring-orange-500">Option B</button>
+                    </div>
+                </div>
+                <div class="p-0 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
+                                <th class="p-4 font-semibold w-1/6">Meal</th>
+                                <th class="p-4 font-semibold w-1/3">Food Items</th>
+                                <th class="p-4 font-semibold w-1/6">Actions</th>
+                                <th class="p-4 font-semibold w-1/3">Approx Macros</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mealTableBody" class="text-sm divide-y divide-gray-100">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- WORKOUT SECTION -->
+        <div id="section-workout" class="hidden space-y-6">
+            
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Home Workout Strategy</h3>
+                <p class="text-gray-600 mb-6">
+                    This 4-week progressive plan requires <strong>no gym equipment</strong>. We use bodyweight and gravity. 
+                    <br><strong>Structure:</strong> 5 Days ON, 2 Days Active Rest. Focus is on HIIT and Compound Movements to maximize calorie burn.
+                </p>
+
+                <!-- Week Selector -->
+                <div class="flex space-x-2 mb-6 overflow-x-auto pb-2 custom-scrollbar">
+                    <button onclick="updateWorkoutWeek(1)" id="btn-week-1" class="flex-shrink-0 px-6 py-2 bg-orange-600 text-white rounded-full font-medium transition shadow-md hover:bg-orange-700">Week 1: Foundations</button>
+                    <button onclick="updateWorkoutWeek(2)" id="btn-week-2" class="flex-shrink-0 px-6 py-2 bg-gray-100 text-gray-600 rounded-full font-medium transition hover:bg-gray-200">Week 2: Intensity</button>
+                    <button onclick="updateWorkoutWeek(3)" id="btn-week-3" class="flex-shrink-0 px-6 py-2 bg-gray-100 text-gray-600 rounded-full font-medium transition hover:bg-gray-200">Week 3: Volume</button>
+                    <button onclick="updateWorkoutWeek(4)" id="btn-week-4" class="flex-shrink-0 px-6 py-2 bg-gray-100 text-gray-600 rounded-full font-medium transition hover:bg-gray-200">Week 4: Peak</button>
+                </div>
+
+                <!-- Days Grid -->
+                <div id="workout-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Intensity Chart -->
+             <div class="bg-white rounded-xl card-shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Progression Overview</h3>
+                <div class="chart-container">
+                    <canvas id="progressionChart"></canvas>
+                </div>
+                <p class="text-xs text-center text-gray-400 mt-2">Estimated intensity increase based on volume and rest reduction.</p>
+            </div>
+        </div>
+
+        <!-- NEW PROGRESS TRACKER SECTION -->
+        <div id="section-tracker" class="hidden space-y-6">
+            <!-- Controls & Summary -->
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Log Your Session</h3>
+                        <p class="text-sm text-gray-500">Select the day and tick off completed exercises. Data saves automatically.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <select id="tracker-week-select" onchange="renderTracker()" class="p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-orange-500 outline-none">
+                            <option value="1">Week 1</option>
+                            <option value="2">Week 2</option>
+                            <option value="3">Week 3</option>
+                            <option value="4">Week 4</option>
+                        </select>
+                        <select id="tracker-day-select" onchange="renderTracker()" class="p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-orange-500 outline-none">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                        <!-- Reset Button for GitHub Deployment robustness -->
+                        <button onclick="resetTrackerData()" class="p-2 text-xs text-red-500 hover:text-red-700 border border-red-100 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Reset this day's progress">
+                            Reset Day
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-100 rounded-full h-4 mb-6 overflow-hidden">
+                    <div id="tracker-progress-bar" class="bg-gradient-to-r from-orange-400 to-orange-600 h-4 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+                
+                <!-- Tracker Table -->
+                <div class="overflow-hidden border border-gray-100 rounded-lg">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-16 text-center">Done</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Exercise Name</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/4">Target</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tracker-table-body" class="divide-y divide-gray-50 bg-white">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="tracker-empty-msg" class="hidden text-center py-10 text-gray-400 text-sm">
+                    No workout scheduled for this day. Rest up! 😴
+                </div>
+            </div>
+        </div>
+
+        <!-- Ask Your Coach Section -->
+        <section class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl card-shadow p-6 text-white">
+            <div class="flex flex-col md:flex-row gap-6 items-start">
+                <div class="flex-1">
+                    <h3 class="text-xl font-bold mb-2 flex items-center">
+                        <span class="mr-2 text-2xl">✨</span> Ask Your AI Coach
+                    </h3>
+                    <p class="text-gray-300 text-sm mb-4">
+                        Stuck on a movement? Need a food substitution? Ask anything about your fitness journey here.
+                    </p>
+                    <div class="flex gap-2">
+                        <input type="text" id="coach-input" placeholder="e.g., Can I replace running with skipping?" 
+                            class="flex-grow p-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <button onclick="askCoach()" class="px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-lg font-semibold transition-colors flex items-center gap-2">
+                            Ask <span class="hidden sm:inline">Coach</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast -->
+    <div id="toast">Progress Saved!</div>
+
+    <!-- AI Modal -->
+    <div id="ai-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
+
+            <!-- Modal panel -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <span class="text-xl">✨</span>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">AI Insight</h3>
+                            <div class="mt-4">
+                                <!-- Loading State -->
+                                <div id="modal-loader" class="hidden flex flex-col items-center justify-center py-8">
+                                    <div class="loader mb-3"></div>
+                                    <p class="text-sm text-gray-500">Consulting the digital coach...</p>
+                                </div>
+                                <!-- Content -->
+                                <div id="modal-content" class="text-sm text-gray-600 ai-response overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar">
+                                    <!-- AI Text goes here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="closeModal()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Got it
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-gray-300 py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">Remember: Consistency > Intensity. Stick to the plan.</p>
+            <p class="text-xs text-gray-500 mt-2">© 2024 Your Personal Coach AI</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Data Storage (ORIGINAL CONTENT RESTORED) ---
+
+        const dietPlan = {
+            "Option A": [
+                { meal: "Breakfast", items: "3 Boiled Eggs (Whole) + 1 Slice Whole Wheat Toast + 1 Apple", macros: "350 kcal | 20g P | 25g C | 18g F" },
+                { meal: "Mid-Morning", items: "Green Tea + Handful of Almonds (10-12)", macros: "100 kcal | 3g P | 2g C | 8g F" },
+                { meal: "Lunch", items: "2 Roti (Chapati) + 1 Bowl Yellow Dal (Lentils) + 1 Bowl Mixed Veg Sabzi + Salad", macros: "550 kcal | 20g P | 70g C | 15g F" },
+                { meal: "Pre-Workout", items: "1 Banana + Black Coffee", macros: "110 kcal | 1g P | 27g C | 0g F" },
+                { meal: "Post-Workout", items: "Whey Protein (1 Scoop) OR 4 Egg Whites Scramble + 1 Cucumber", macros: "130 kcal | 24g P | 3g C | 1g F" },
+                { meal: "Dinner", items: "150g Paneer (Cottage Cheese) Stir-fry with Bell Peppers + 1 Bowl Soup", macros: "450 kcal | 28g P | 10g C | 30g F" }
+            ],
+            "Option B": [
+                { meal: "Breakfast", items: "Oats Porridge (50g oats + water/milk) + 2 Boiled Eggs", macros: "380 kcal | 18g P | 40g C | 14g F" },
+                { meal: "Mid-Morning", items: "1 Orange + 1 Boiled Egg", macros: "120 kcal | 7g P | 15g C | 5g F" },
+                { meal: "Lunch", items: "1 Bowl Brown Rice + 1 Bowl Rajma/Chickpeas + Curd (100g) + Salad", macros: "600 kcal | 18g P | 80g C | 12g F" },
+                { meal: "Pre-Workout", items: "2 Dates + Black Coffee", macros: "100 kcal | 1g P | 24g C | 0g F" },
+                { meal: "Post-Workout", items: "Protein Shake OR Greek Yogurt (150g)", macros: "120 kcal | 20g P | 8g C | 0g F" },
+                { meal: "Dinner", items: "Soya Chunk Curry (50g chunks) + 1 Roti + Salad", macros: "400 kcal | 30g P | 35g C | 10g F" }
+            ]
+        };
+
+        const workouts = {
+            1: [ // Week 1
+                { day: "Monday", focus: "Full Body Circuit", exercises: ["Bodyweight Squats: 3x15", "Push-ups (Knee or Std): 3x10", "Lunges: 3x10/leg", "Plank: 3x30 sec", "Jumping Jacks: 3x40 sec"], rest: "60s between sets" },
+                { day: "Tuesday", focus: "Lower Body & Core", exercises: ["Glute Bridges: 3x15", "Reverse Lunges: 3x12/leg", "Calf Raises: 3x20", "Leg Raises (Lying): 3x12", "Mountain Climbers: 3x30 sec"], rest: "45s between sets" },
+                { day: "Wednesday", focus: "Active Recovery", exercises: ["30 min Brisk Walk or Light Yoga", "Stretching Routine"], rest: "N/A" },
+                { day: "Thursday", focus: "Upper Body Strength", exercises: ["Pike Pushups (Shoulders): 3x8", "Door Frame Rows (Back): 3x12", "Chair Dips (Triceps): 3x10", "Diamond Pushups: 3x8", "Arm Circles: 2x1 min"], rest: "60s between sets" },
+                { day: "Friday", focus: "HIIT Cardio", exercises: ["Burpees: 4x10", "High Knees: 4x30 sec", "Squat Jumps: 4x12", "Plank Jacks: 4x30 sec"], rest: "90s between rounds" },
+                { day: "Saturday", focus: "Endurance", exercises: ["45 min Steady Jog/Fast Walk", "Core: 3x20 Crunches"], rest: "N/A" },
+                { day: "Sunday", focus: "Rest", exercises: ["Total Rest", "Hydrate Well"], rest: "Relax" }
+            ],
+            2: [ // Week 2 - Increased Reps/Volume
+                { day: "Monday", focus: "Full Body Circuit", exercises: ["Bodyweight Squats: 4x20", "Push-ups: 4x12", "Lunges: 4x12/leg", "Plank: 4x45 sec", "Jumping Jacks: 4x50 sec"], rest: "50s between sets" },
+                { day: "Tuesday", focus: "Lower Body & Core", exercises: ["Glute Bridges (Single Leg): 3x12/leg", "Walking Lunges: 3x15/leg", "Calf Raises: 4x25", "Bicycle Crunches: 3x20", "Mountain Climbers: 4x40 sec"], rest: "45s between sets" },
+                { day: "Wednesday", focus: "Active Recovery", exercises: ["30 min Brisk Walk", "Foam Rolling / Stretching"], rest: "N/A" },
+                { day: "Thursday", focus: "Upper Body Strength", exercises: ["Pike Pushups: 4x10", "Door Frame Rows: 4x15", "Chair Dips: 4x12", "Superman Hold: 4x30 sec"], rest: "50s between sets" },
+                { day: "Friday", focus: "HIIT Cardio", exercises: ["Burpees: 5x12", "High Knees: 5x40 sec", "Squat Jumps: 5x15", "Russian Twists: 4x20"], rest: "60s between rounds" },
+                { day: "Saturday", focus: "Endurance", exercises: ["50 min Jog/Fast Walk", "Core: 4x25 Crunches"], rest: "N/A" },
+                { day: "Sunday", focus: "Rest", exercises: ["Total Rest"], rest: "Relax" }
+            ],
+            3: [ // Week 3 - Decreased Rest
+                 { day: "Monday", focus: "Full Body Density", exercises: ["Squats: 4x25", "Push-ups: 4x15", "Lunges: 4x15/leg", "Plank: 4x60 sec"], rest: "30s between sets" },
+                 { day: "Tuesday", focus: "Legs & Core", exercises: ["Bulgarian Split Squats: 3x10/leg", "Side Plank: 3x30s/side", "Jump Lunges: 3x10/leg"], rest: "45s between sets" },
+                 { day: "Wednesday", focus: "Active Recovery", exercises: ["40 min Walk"], rest: "N/A" },
+                 { day: "Thursday", focus: "Upper Push/Pull", exercises: ["Decline Pushups: 4x10", "Door Rows (Slow tempo): 4x12", "Tricep Dips (Feet elevated): 3x10"], rest: "45s between sets" },
+                 { day: "Friday", focus: "Tabata HIIT", exercises: ["20s Work / 10s Rest x 8 Rounds: Burpees", "20s Work / 10s Rest x 8 Rounds: Squat Jumps"], rest: "2 min between Tabatas" },
+                 { day: "Saturday", focus: "Endurance", exercises: ["60 min Activity (Walk/Run/Sports)"], rest: "N/A" },
+                 { day: "Sunday", focus: "Rest", exercises: ["Rest"], rest: "Relax" }
+            ],
+            4: [ // Week 4 - Peak Intensity
+                 { day: "Monday", focus: "The 300 Challenge", exercises: ["50 Pushups", "50 Squats", "50 Lunges", "50 Crunches", "50 Jumping Jacks", "50 Mountain Climbers"], rest: "Complete as fast as possible" },
+                 { day: "Tuesday", focus: "Lower Power", exercises: ["Squat Jumps: 5x10", "Sprint in place: 10x15 sec", "Wall Sit: 3xMax Time"], rest: "60s" },
+                 { day: "Wednesday", focus: "Active Recovery", exercises: ["Yoga"], rest: "N/A" },
+                 { day: "Thursday", focus: "Upper Density", exercises: ["Pushups to failure x 3 sets", "Door Rows to failure x 3 sets", "Dips to failure x 3 sets"], rest: "60s" },
+                 { day: "Friday", focus: "HIIT Death", exercises: ["100 Burpees for time"], rest: "None" },
+                 { day: "Saturday", focus: "Long Cardio", exercises: ["60 min Brisk Walk/Run"], rest: "N/A" },
+                 { day: "Sunday", focus: "Rest", exercises: ["Review Progress"], rest: "Relax" }
+            ]
+        };
+
+        // --- Logic ---
+
+        let currentWeek = 1;
+
+        function initCharts() {
+            // Macro Chart
+            const ctxMacro = document.getElementById('macroChart').getContext('2d');
+            new Chart(ctxMacro, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein (140g)', 'Carbs (200g)', 'Fats (70g)'],
+                    datasets: [{
+                        data: [28, 40, 32],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Progression Chart
+            const ctxProg = document.getElementById('progressionChart').getContext('2d');
+            new Chart(ctxProg, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Intensity Level',
+                        data: [60, 75, 85, 95],
+                        borderColor: '#ea580c',
+                        backgroundColor: 'rgba(234, 88, 12, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+        }
+
+        function switchMainTab(tabName) {
+            const navNut = document.getElementById('nav-nutrition');
+            const navWork = document.getElementById('nav-workout');
+            const navTrack = document.getElementById('nav-tracker');
+            
+            const secNut = document.getElementById('section-nutrition');
+            const secWork = document.getElementById('section-workout');
+            const secTrack = document.getElementById('section-tracker');
+
+            // Reset all
+            [navNut, navWork, navTrack].forEach(el => {
+                el.className = el.className.replace('active-tab', 'inactive-tab');
+            });
+            [secNut, secWork, secTrack].forEach(el => el.classList.add('hidden'));
+
+            // Activate specific
+            if (tabName === 'nutrition') {
+                navNut.className = navNut.className.replace('inactive-tab', 'active-tab');
+                secNut.classList.remove('hidden');
+            } else if (tabName === 'workout') {
+                navWork.className = navWork.className.replace('inactive-tab', 'active-tab');
+                secWork.classList.remove('hidden');
+            } else if (tabName === 'tracker') {
+                navTrack.className = navTrack.className.replace('inactive-tab', 'active-tab');
+                secTrack.classList.remove('hidden');
+                renderTracker(); // Render on open
+            }
+        }
+
+        function renderMealPlan(option) {
+            const tbody = document.getElementById('mealTableBody');
+            tbody.innerHTML = '';
+            const meals = dietPlan[option];
+
+            meals.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 font-medium text-gray-900 border-b border-gray-50">${m.meal}</td>
+                    <td class="p-4 text-gray-600 border-b border-gray-50">${m.items}</td>
+                    <td class="p-4 border-b border-gray-50">
+                        <button onclick="getRecipe('${m.items.replace(/'/g, "\\'")}')" class="text-xs bg-orange-100 text-orange-700 hover:bg-orange-200 px-3 py-1 rounded-full font-semibold transition-colors flex items-center gap-1 whitespace-nowrap">
+                            ✨ Recipe
+                        </button>
+                    </td>
+                    <td class="p-4 text-gray-500 text-xs border-b border-gray-50 font-mono">${m.macros}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateWorkoutWeek(week) {
+            currentWeek = week;
+            
+            // Update buttons styling
+            for(let i=1; i<=4; i++) {
+                const btn = document.getElementById(`btn-week-${i}`);
+                if (i === week) {
+                    btn.classList.remove('bg-gray-100', 'text-gray-600');
+                    btn.classList.add('bg-orange-600', 'text-white', 'shadow-md');
+                } else {
+                    btn.classList.add('bg-gray-100', 'text-gray-600');
+                    btn.classList.remove('bg-orange-600', 'text-white', 'shadow-md');
+                }
+            }
+
+            renderWorkoutGrid();
+        }
+
+        function renderWorkoutGrid() {
+            const grid = document.getElementById('workout-grid');
+            grid.innerHTML = '';
+            const weekData = workouts[currentWeek];
+
+            weekData.forEach((dayData, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-gray-50 rounded-lg p-5 border border-gray-100 hover:border-orange-200 transition-colors duration-200 flex flex-col";
+                
+                const exerciseList = dayData.exercises.map(ex => `<li class="text-sm text-gray-600 mb-1">• ${ex}</li>`).join('');
+                
+                // Construct string for AI prompt
+                const exercisesStr = dayData.exercises.join(', ');
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="font-bold text-gray-800">${dayData.day}</h4>
+                        <span class="text-xs bg-white px-2 py-1 rounded border border-gray-200 text-gray-500">${dayData.focus}</span>
+                    </div>
+                    <ul class="mb-4 flex-grow">
+                        ${exerciseList}
+                    </ul>
+                    <div class="mt-auto pt-3 border-t border-gray-200 flex justify-between items-center">
+                        <p class="text-xs text-orange-600 font-semibold">Rest: ${dayData.rest}</p>
+                        <button onclick="getWorkoutTips('${dayData.focus}', '${exercisesStr}')" class="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1">
+                            ✨ Get Pro Tips
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- NEW TRACKER LOGIC (Robust for GitHub Pages/Render) ---
+
+        function getStorageKey(week, day) {
+            // Using a specific prefix ensures it doesn't clash with other apps on the same domain
+            return `fatLoss_v1_w${week}_${day}`;
+        }
+
+        function loadTrackerData(week, day) {
+            try {
+                const key = getStorageKey(week, day);
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : {};
+            } catch (e) {
+                console.warn("Storage access denied or unavailable", e);
+                return {};
+            }
+        }
+
+        function saveTrackerData(week, day, index, isChecked) {
+            try {
+                const key = getStorageKey(week, day);
+                let data = loadTrackerData(week, day);
+                data[index] = isChecked;
+                localStorage.setItem(key, JSON.stringify(data));
+                updateProgressBar(week, day);
+                showToast("Progress Saved!");
+            } catch (e) {
+                console.error("Could not save data", e);
+                showToast("Cannot save (Private Mode?)");
+            }
+        }
+        
+        function resetTrackerData() {
+            const week = parseInt(document.getElementById('tracker-week-select').value);
+            const day = document.getElementById('tracker-day-select').value;
+            try {
+                const key = getStorageKey(week, day);
+                localStorage.removeItem(key);
+                renderTracker();
+                showToast("Data Reset for Day");
+            } catch (e) {
+                console.error("Reset failed", e);
+            }
+        }
+
+        function updateProgressBar(week, day) {
+            const weekData = workouts[week];
+            const dayData = weekData.find(d => d.day === day);
+            if (!dayData || !dayData.exercises.length) {
+                document.getElementById('tracker-progress-bar').style.width = '0%';
+                return;
+            }
+
+            const total = dayData.exercises.length;
+            const data = loadTrackerData(week, day);
+            let checkedCount = 0;
+            
+            for (let i = 0; i < total; i++) {
+                if (data[i]) checkedCount++;
+            }
+
+            const pct = (checkedCount / total) * 100;
+            const bar = document.getElementById('tracker-progress-bar');
+            bar.style.width = `${pct}%`;
+            
+            // Celebration if 100%
+            if (pct === 100) {
+                bar.classList.add('from-green-400', 'to-emerald-600');
+                bar.classList.remove('from-orange-400', 'to-orange-600');
+                triggerConfetti();
+            } else {
+                bar.classList.remove('from-green-400', 'to-emerald-600');
+                bar.classList.add('from-orange-400', 'to-orange-600');
+            }
+        }
+
+        function triggerConfetti() {
+             try {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+             } catch(e) {
+                 console.log("Confetti not loaded");
+             }
+        }
+        
+        function showToast(message) {
+            const x = document.getElementById("toast");
+            x.innerText = message;
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+
+        function renderTracker() {
+            const week = parseInt(document.getElementById('tracker-week-select').value);
+            const day = document.getElementById('tracker-day-select').value;
+            const tbody = document.getElementById('tracker-table-body');
+            const emptyMsg = document.getElementById('tracker-empty-msg');
+            const tableContainer = document.querySelector('#section-tracker table').parentElement;
+
+            tbody.innerHTML = '';
+
+            const weekData = workouts[week];
+            const dayData = weekData.find(d => d.day === day);
+
+            if (!dayData || dayData.exercises[0] === "Rest" || dayData.exercises[0] === "Total Rest") {
+                tableContainer.classList.add('hidden');
+                emptyMsg.classList.remove('hidden');
+                updateProgressBar(week, day);
+                return;
+            }
+
+            tableContainer.classList.remove('hidden');
+            emptyMsg.classList.add('hidden');
+
+            const savedData = loadTrackerData(week, day);
+
+            dayData.exercises.forEach((exString, index) => {
+                // Parse "Exercise Name: SetsxReps" string
+                const splitIndex = exString.indexOf(':');
+                let name = exString;
+                let target = "See description";
+                
+                if (splitIndex > -1) {
+                    name = exString.substring(0, splitIndex).trim();
+                    target = exString.substring(splitIndex + 1).trim();
+                }
+
+                const isChecked = savedData[index] ? 'checked' : '';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-4 text-center border-b border-gray-50">
+                        <label class="checkbox-wrapper relative cursor-pointer inline-flex items-center justify-center">
+                            <input type="checkbox" class="strikethrough-checked peer sr-only" ${isChecked} onchange="saveTrackerData(${week}, '${day}', ${index}, this.checked)">
+                            <div class="w-6 h-6 border-2 border-gray-300 rounded transition-all peer-focus:ring-2 peer-focus:ring-orange-200">
+                                <svg class="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                        </label>
+                    </td>
+                    <td class="p-4 border-b border-gray-50">
+                        <span class="text-sm font-medium text-gray-700 transition-all duration-300">${name}</span>
+                    </td>
+                    <td class="p-4 border-b border-gray-50">
+                         <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">${target}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateProgressBar(week, day);
+        }
+
+        // --- BACKEND AI CALL ---
+        async function callServer(prompt, title) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-content').innerHTML = '';
+            document.getElementById('ai-modal').classList.remove('hidden');
+            document.getElementById('modal-loader').classList.remove('hidden');
+            document.getElementById('modal-content').classList.add('hidden');
+
+            try {
+                // CALLING YOUR RENDER BACKEND
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error || 'Server error');
+
+                document.getElementById('modal-content').innerHTML = marked.parse(data.text);
+            } catch (err) {
+                document.getElementById('modal-content').innerHTML = `<p class="text-red-500">Error: ${err.message}</p>`;
+            } finally {
+                document.getElementById('modal-loader').classList.add('hidden');
+                document.getElementById('modal-content').classList.remove('hidden');
+            }
+        }
+        
+        // Modal & AI Helper Functions
+        const modal = document.getElementById('ai-modal');
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        function getRecipe(foodItems) {
+            const prompt = `You are a professional nutritionist. Create a simple, concise, and healthy cooking recipe for the following meal components: "${foodItems}". 
+            Focus on fat loss. Include:
+            1. List of Ingredients (assume standard Indian vegetarian/egg items)
+            2. Step-by-step Instructions (keep it under 6 steps)
+            3. A quick "Why this helps fat loss" tip.`;
+            callServer(prompt, "✨ Smart Recipe Generator");
+        }
+
+        function getWorkoutTips(focus, exercises) {
+            const prompt = `You are an elite personal trainer. Provide concise form cues and safety tips for the following workout session:
+            Focus: ${focus}
+            Exercises: ${exercises}
+            
+            Format as a bulleted list. Keep it motivating and actionable for a home workout environment. Highlight common mistakes to avoid.`;
+            callServer(prompt, `✨ Pro Tips: ${focus}`);
+        }
+
+        function askCoach() {
+            const input = document.getElementById('coach-input');
+            const question = input.value.trim();
+            if (!question) return;
+
+            const prompt = `You are a supportive and knowledgeable personal trainer and nutritionist helping a 20-year-old male lose fat (current weight 67kg). 
+            Answer this user's question concisely: "${question}"
+            Keep the tone encouraging but factual.`;
+
+            callServer(prompt, "✨ Coach's Answer");
+            input.value = ''; // Clear input
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            renderMealPlan('Option A');
+            updateWorkoutWeek(1);
+        });
+
+    </script>
+</body>
+</html>
